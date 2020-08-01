@@ -1,11 +1,11 @@
 class Waiter
-attr_accessor :name, :age
+attr_accessor :name, :yrs_exp
 
   @@all = []
 
-  def initialize(name, age)
+  def initialize(name, yrs_exp)
     @name = name
-    @age = age
+    @yrs_exp = yrs_exp
     @@all << self
   end
 
@@ -13,43 +13,28 @@ attr_accessor :name, :age
     @@all
   end
 
- # OBJECT RELATIONSHIPS - #new_meal, #meals, #waiters
+  # OBJECT RELATIONSHIPS - #new_meal, #meals, #best_tippers
 
- # Returns an Array of Meal instances associated with this customer
+  # Initialize a meal using the current Waiter instance, 
+    # a provided Customer instance and a total and tip
+  def new_meal(customer, total, tip=0)
+    Meal.new(self, customer, total, tip)
+  end
+
+  # Returns an Array of Meal instances associated with this waiter
   def meals
     Meal.all.select do |meal|
-      meal.customer == self
+      meal.waiter == self
     end
   end
 
- # Returns an Array of Waiter instances associated w/ this customer's meals
-  def waiters
-    meals.map do |meal|
-      meal.waiter
+  # Returns Customer instance associated with the meal that 
+    # received the largest tip
+  def best_tipper
+    best_tipped_meal = meals.max do |meal_a, meal_b|
+      meal_a.tip <=> meal_b.tip
     end
-  end
 
-  # Initializes a meal using the current Customer instance, 
-    # a provided Waiter instance and a total and tip
-  def new_meal(waiter, total, tip=0)
-    Meal.new(waiter, self, total, tip)
+    best_tipped_meal.customer
   end
-
-  def new_meal_20_percent(waiter, total)
-    tip = total * 0.2
-    Meal.new(waiter, self, total, tip)
-  end
-
-  def self.oldest_customer # Class method to find the odlest customer
-    oldest_age = 0
-    oldest_customer = nil #not assigned yet 
-    self.all.each do |customer|
-      if customer.age > oldest_age
-        oldest_age = customer.age
-        oldest_customer = customer
-      end
-    end
-    oldest_customer
-  end
-
 end
